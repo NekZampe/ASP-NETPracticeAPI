@@ -75,7 +75,6 @@ namespace WebPractice.Controllers
         [HttpDelete("{userId}/unfollow/{followerId}")]
         public async Task<IActionResult> UnfollowUser(int userId, int followerId)
         {
-            // Check if both user and follower exist
             var user = await _context.Users.FindAsync(userId);
             var follower = await _context.Users.FindAsync(followerId);
 
