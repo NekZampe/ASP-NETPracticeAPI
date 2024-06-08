@@ -33,8 +33,6 @@ namespace WebPractice.Controllers
         }
 
 
-        //FOLLOW/UNFOLLOW
-
         [HttpPost("{userId}/follow/{followerId}")]
         public async Task<IActionResult> FollowUser(int userId, int followerId)
         {

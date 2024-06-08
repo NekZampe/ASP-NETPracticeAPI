@@ -17,7 +17,6 @@ namespace WebPractice.Controllers
             _context = context;
         }
 
-        // POST: api/posts
         [HttpPost]
         public async Task<IActionResult> CreatePost(Post post)
         {
@@ -35,12 +34,12 @@ namespace WebPractice.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it accordingly
+              
                 return StatusCode(500, "An error occurred while processing the request.");
             }
         }
 
-        // DELETE: api/posts/{postId}
+        
         [HttpDelete("{postId}")]
         public async Task<IActionResult> DeletePost(int postId)
         {
@@ -59,12 +58,12 @@ namespace WebPractice.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it accordingly
+               
                 return StatusCode(500, "An error occurred while processing the request.");
             }
         }
 
-        // PATCH: api/posts/like/{postId}
+      
         [HttpPatch("{userId}/like/{postId}")]
         public async Task<IActionResult> ToggleLike(int postId, int userId)
         {
@@ -104,13 +103,13 @@ namespace WebPractice.Controllers
             }
             catch (Exception ex)
             {
-                // Log the exception or handle it accordingly
+               
                 return StatusCode(500, "An error occurred while processing the request.");
             }
         }
 
 
-        // GET: api/posts
+       
         [HttpGet]
         public async Task<IActionResult> GetAllPosts()
         {
