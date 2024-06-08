@@ -13,41 +13,45 @@ namespace WebPractice.Controllers
             _context = context;
         }
 
-        // GET: api/userfollowers
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<UserFollower>>> GetUserFollowers()
+        [HttpGet("userfollowers")]
+        public async Task<IActionResult> GetUserFollowers()
         {
-            return await _context.UserFollowers.ToListAsync();
+            var userFollowers = await _context.UserFollowers
+                .Include(uf => uf.User)
+                .Include(uf => uf.Follower)
+                .ToListAsync();
+
+            var result = userFollowers.Select(uf => new
+            {
+                uf.UserId,
+                UserEmail = uf.User?.Email,
+                uf.FollowerId,
+                FollowerEmail = uf.Follower?.Email 
+            });
+
+            return Ok(result);
         }
+
 
         //FOLLOW/UNFOLLOW
 
         [HttpPost("{userId}/follow/{followerId}")]
         public async Task<IActionResult> FollowUser(int userId, int followerId)
         {
-            // Check if both user and follower exist
-            var user = await _context.Users.FindAsync(userId);
-            var follower = await _context.Users.FindAsync(followerId);
+            
+            var user = await _context.Users
+                .Include(u => u.Followers)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+            var follower = await _context.Users
+                .Include(u => u.Following)
+                .FirstOrDefaultAsync(u => u.Id == followerId);
 
-
-            if (userId == followerId) return Conflict("You can't follow yourself");
-
-            if (follower == null && user == null)
+            if (user == null || follower == null)
             {
-                return NotFound($"Users with ID {userId} , {followerId} not found.");
-            }
-            if (user == null)
-            {
-                return NotFound($"User with ID {userId} not found.");
+                return NotFound($"One or both users with IDs {userId}, {followerId} not found.");
             }
 
-            if (follower == null)
-            {
-                return NotFound($"User with ID {followerId} not found.");
-            }
-
-
-            // Check if the relationship already exists
+            
             var existingRelationship = await _context.UserFollowers
                 .FirstOrDefaultAsync(uf => uf.UserId == userId && uf.FollowerId == followerId);
 
@@ -59,16 +63,18 @@ namespace WebPractice.Controllers
             var userFollower = new UserFollower
             {
                 UserId = userId,
-                FollowerId = followerId,
-                User = user,
-                Follower = follower
+                FollowerId = followerId
             };
+
+            user.Followers.Add(userFollower);
+            follower.Following.Add(userFollower);
 
             _context.UserFollowers.Add(userFollower);
             await _context.SaveChangesAsync();
 
             return Ok($"User: {userId} successfully followed User: {followerId}");
         }
+
 
 
 

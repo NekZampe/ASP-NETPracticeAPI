@@ -17,6 +17,7 @@ namespace WebPractice.Data
 
         public DbSet<User> Users { get; set; }
         public DbSet<UserFollower> UserFollowers { get; set; }
+        public DbSet<Post> Posts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,16 +26,23 @@ namespace WebPractice.Data
 
             modelBuilder.Entity<UserFollower>()
                 .HasOne(uf => uf.User)
-                .WithMany()
+                .WithMany(u => u.Following)
                 .HasForeignKey(uf => uf.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserFollower>()
                 .HasOne(uf => uf.Follower)
-                .WithMany()
+                .WithMany(u => u.Followers)
                 .HasForeignKey(uf => uf.FollowerId)
                 .OnDelete(DeleteBehavior.Cascade);
-        }
 
+            modelBuilder.Entity<Post>()
+               .HasOne<User>()                    
+               .WithMany()                        
+               .HasForeignKey(p => p.UserId)     
+               .OnDelete(DeleteBehavior.Cascade);
+
+
+        }
     }
 }
